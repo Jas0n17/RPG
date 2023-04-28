@@ -1,22 +1,19 @@
 // package RPG;
 import java.util.Scanner;
-import java.util.HashMap;
-import java.util.InputMismatchException;
-
-import javax.swing.plaf.TreeUI;
-import javax.xml.crypto.Data;
-
+import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.Random;
 
 public class Driver {
     public static void main(String[] args) {
+        //Scanner object created
         Scanner scnr = new Scanner(System.in);
-
+        //Dialogue 
         System.out.println("You and your best friend are playing pokemon on the Nintendo DS (Enter to continue)");
         scnr.nextLine();
         System.out.println("Friend: Bro I wish we could enter the Pokemon world, that would be so awesome. What do you think?");
         scnr.nextLine();
         System.out.println("(Yes) to agree with friend | (No) to disagree with friend");
+        //Decsion tree created
         String enter = scnr.next();
         if (enter.equalsIgnoreCase("yes")){
             System.out.println("You: Yea man that sounds like a rad idea! But what starter pokemon would you choose?");
@@ -30,8 +27,8 @@ public class Driver {
             scnr.nextLine();
         }
         System.out.println("Friend: Anyways what pokemon would you choose?");
+        //Object poke is the user's pokemon
         Pokemon poke  = chooseStarterPokemon(scnr);
-    
         System.out.println("Mom: Hey boys dinner is ready!!! (Enter to continue)");
         scnr.nextLine();
         System.out.println("(You and your friend have dinner and he goes home.)");
@@ -46,17 +43,18 @@ public class Driver {
         scnr.nextLine();
         System.out.println("You feel like you're falling.\n.....\n....\n...\n..\n.");
         scnr.nextLine();
+        //makeText(String, Scanner) does the same as System.out.print(); and scnr.nextLine();
         makeText("*THUD*", scnr);
         makeText("Strange man: Woah, hello there fellow traveler!\nDo you happen to be lost?", scnr);
         profOak();
         makeText("Welcome to the world of pokemons!", scnr);
+        //Dialogue based on previous decision
         if(enter.equalsIgnoreCase("yes")) {
             makeText("You were talking about pokemons earlier, you seemed very enthusiastic!\nMy name is professor Oak.", scnr);
         } else {
             makeText("You were talking about pokemons eariler you didn't seem to like pokemons very much, well, I am here to prove you wrong!\nMy name is professor Oak.", scnr);
         }
-
-        //______//
+        //World object created to store Place objects which stores its respective title, exits, and descriptions//
         World hash = new World();
         Place spawnPoint = new Place(">SpawnPoint<", "This is a place of home. You'll be safe here. For now-");
         spawnPoint.addExit("n");
@@ -76,34 +74,38 @@ public class Driver {
         hash.addPlace("Arctic", arctic);
         hash.addPlace("Desert", desert);
         hash.addPlace("Dungeon", bossRoom);
-        //______//
-        
+        //String choice will store many of the user's input decisions
         String choice = "";
+        //New inventory object created
         Inventory inv = new Inventory();
-        
+        //Dialogue
         System.out.println("Professor Oak: Here is your starter pokemon, " + poke.getName() + ", don't ask me how I knew.");
         poke.getPokemon();
         scnr.nextLine();
         inv.addPoke(poke);
         System.out.println("Well traveler, you are one your own. Goodluck!");
         scnr.nextLine();
-        
-
-        //-------//
+        //Starts player at Spawn Point
         hash.getPlace("SpawnPoint").getInfo();
+        //Prints main menu
         printMenu();
         choice = scnr.next();
+        //Prints secondary menu based on previous menu choice
         printMenuv2(choice, inv);
         choice = scnr.next();
+        //Only allows user's movement north.
         while (!choice.equals("n")) {
-            System.out.println("You can only go North from here!");
+            System.out.println("You can only go North from here! (n)");
             choice = scnr.next();
         }
+        //Runs while loop until choice is equals to q
         while (!choice.equals("q")) {
             if (choice.equals("n")) {
+                //Gets the Jungle place description
                 hash.getPlace("Jungle").getInfo();
                 makeText("You take -10Hp.", scnr);
                 inv.playerDamaged(10);
+                //Check if user HP falls below 1
                 if(!inv.hasDied()) {
                     System.out.println("You Died.");
                     System.exit(0);
@@ -118,13 +120,17 @@ public class Driver {
                     scnr.nextLine();
                 }
                 else {
+                    //Npc Bulbasaur created
                     Pokemon npcBulb = new Pokemon("Bulbasaur", 80, 20, 50);
                     makeText("A wild Bulbasaur appeared!\nRunning is not an option >:)", scnr);
                     makeText("Bulbasaur: Bulba-Bul-Bulbasaur!!!", scnr);
                     System.out.println("Your pokeball twitches. It seems like " + poke.getName() + " is iching for a battle!\nA Battle In The Jungle Commences!");
                     scnr.nextLine();
+                    //Battle object created
                     Battle jungleBattle = new Battle(poke, npcBulb, inv, scnr, "JungleBattle");
+                    //Initiate battle
                     jungleBattle.battleGround(scnr);
+                    //If statment passes if user wins
                     if (jungleBattle.getWinner()) {
                         System.out.println(poke.getName() + " leveled up!\n+50 HP\n+5 BaseAttack\n+10 SpecialAttack");
                         poke.incHp(50);
@@ -140,6 +146,7 @@ public class Driver {
                         }
                         inv.addHPkit(3 - bandage);
                     } else {
+                        //If use loses
                         makeText("You Died.", scnr);
                         choice = "q";
                     }
@@ -154,21 +161,25 @@ public class Driver {
                     System.out.println(hash.getPlace("Jungle").listExits());
                     choice = scnr.next();
                 }
+                //User chooses to go north
                 if (choice.equals("n")) {
                     choice = "death";
                 }
 
             }
             else if (choice.equals("e")) {
+                //Displays Dersert place description
                 hash.getPlace("Desert").getInfo();
                 makeText("You take -10Hp.", scnr);
                 inv.playerDamaged(10);
+                //Checks if user HP falls below 1
                 if(!inv.hasDied()) {
                     System.out.println("You Died.");
                     System.exit(0);
                 }
                 makeText("In the distance you see a large dragon-like creature. Upon a closer look, it is a Charizard, the ruler of the desert.", scnr);
                 makeText("You: It has a strange stone on the end of its tail, it looks valuable, maybe if I defeat it. I can use that stone.", scnr);
+                //Creates a new Pokemon object
                 Pokemon charizard = new Pokemon("Charmander", 200, 30, 70);
                 System.out.println("Battle Charizard?(Yes/No)");
                 String charbattle = scnr.next();
@@ -183,8 +194,11 @@ public class Driver {
                     charizard.getPokemon();
                     makeText("Charizard: *ROOOAARRRR*", scnr);
                     makeText("You alright big guy, lets do this!\nA Showdown Under the Sun!", scnr);
+                    //Battle object created
                     Battle desertBattle = new Battle(poke, charizard, inv, scnr, "DesertBattle");
+                    //Battle initated
                     desertBattle.battleGround(scnr);
+                    //User wins battle
                     if (desertBattle.getWinner()) {
                         makeText("The lifeless lizard lay motionless on the sand.", scnr);
                         makeText("Charizard: rrrhrrrh", scnr);
@@ -196,15 +210,18 @@ public class Driver {
                         makeText("You make your way back to the jungle.", scnr);
                         choice = "n";
                     } else {
+                        //User loses battle
                         makeText("You Died", scnr);
                         choice = "q";
                     }
                 }
             }
             else if (choice.equals("w")){
+                //Gets Place object Arctice description
                 hash.getPlace("Arctic").getInfo();
                 makeText("You take -10Hp.", scnr);
                 inv.playerDamaged(10);
+                //Check if user's HP fall below 1
                 if(!inv.hasDied()) {
                     System.out.println("You Died.");
                     System.exit(0);
@@ -217,8 +234,11 @@ public class Driver {
                 System.out.println("Trainer: Squirtle, I choose you!");
                 Pokemon squirtle = new Pokemon("Squirtle", 150, 25, 35);
                 System.out.println("An Arctic Faceoff Ensues!");
+                //Battle object created
                 Battle arcticBattle = new Battle(poke, squirtle, inv, scnr, "ArcticBattle");
+                //Battle iniated
                 arcticBattle.battleGround(scnr);
+                //User wins
                 if (arcticBattle.getWinner()) {
                     System.out.println(poke.getName() + " leveled up!\n+60 HP\n+5 BaseAttack\n+5 Special Attack");
                     poke.incHp(60);
@@ -234,6 +254,7 @@ public class Driver {
                     makeText("You turn back to the jungle. Wondering what await you.", scnr);
                     choice = "n";
                 } else {
+                    //User loses
                     System.out.println(poke.getName() + " lies flat before you, on the verge of death. You run up to it and hold it in your arms.");
                     scnr.nextLine();
                     System.out.println("You: NOOOO, don't die on me buddy!");
@@ -255,6 +276,7 @@ public class Driver {
                 }
             }
             else if (choice.equalsIgnoreCase("death")) {
+                //Gets Place object named Dungeon description
                 makeText("You choose to go north...", scnr);
                 makeText("The air thickens...", scnr);
                 makeText("You can't help but feel like something is watching you.", scnr);
@@ -262,6 +284,7 @@ public class Driver {
                 makeText("It's not too late to turn back...", scnr);
                 System.out.println("Turnback?(Yes/No)");
                 choice = scnr.next();
+                //User has choice to turn back
                 if (choice.equalsIgnoreCase("Yes")) {
                     choice = "n";
                 } else {
@@ -277,6 +300,7 @@ public class Driver {
                     mewtwo.getPokemon();
                     System.out.println("Mewtwo: ~Those steel doors stay SHUT for a reason. Prepare to die!~\nHow should you respond?\nSarcastic(1)\nApologetic(2)\nDefensive(3)");
                     int dAnswer = scnr.nextInt();
+                    //Decision structure for responses
                     while(dAnswer != 1 && dAnswer != 2 && dAnswer != 3) {
                         System.out.println("Mewtwo: ~You have to enter a number between 1 and 3.~ *Faceplam*\nEnter your choice (1/2/3)");
                         dAnswer = scnr.nextInt();
@@ -299,10 +323,20 @@ public class Driver {
                     scnr.nextLine();
                     System.out.println("The Final Showdown! Who will win?");
                     scnr.nextLine();
+                    //Battle object created
                     Battle finalBattle = new Battle(poke, mewtwo, inv, scnr, "FinalBattle");
+                    //Battle initated
                     finalBattle.battleGround(scnr);
                     if (finalBattle.getWinner()) {
-                        //user wins
+                        makeText("Mewtwo: arrrrrHH", scnr);
+                        makeText("Mewtwo: I have failed you master...*ARHHHH*...arrrr...", scnr);
+                        makeText("(Mewtwo dies)", scnr);
+                        makeText("Footsteps from the darkness gets closer...", scnr);
+                        makeText("A figure reveal itsself.", scnr);
+                        profOak();
+                        makeText("Prof Oak: You have passed the final test. Congratulation.", scnr);
+                        makeText("Prof Oak: You may now wake up.", scnr);
+                        choice = "q";
                     } else {
                         makeText("You Died.", scnr);
                         choice = "q";
@@ -312,7 +346,9 @@ public class Driver {
                 }
             }
             else if(choice.equals("s")) {
+                //Gets Place object Spawn Point description
                 hash.getPlace("SpawnPoint").getInfo();
+                //New menu version for spawn point only
                 printMenuv3();
                 choice = scnr.next();
                 while(!choice.equals("i") && !choice.equals("c") && !choice.equals("q")) {
@@ -320,6 +356,7 @@ public class Driver {
                     choice = scnr.next();
                 }
                 if (choice.equals("i")) {
+                    //User can interact with inventory until they are ready (healing)
                     while(choice.equals("i")) {
                         inv.showInventory();
                         System.out.println("_______________________\nHeal yourself(1)\nHeal " + poke.getName() + "(2)");
@@ -365,22 +402,25 @@ public class Driver {
                 choice = "q";
             }
         }
+        //Ending dialogue
         makeText("*Ring* \n      *Ring*\n            *Ring*", scnr);
         makeText("You turn your alarm off and sit up on your bed.", scnr);
         makeText("You: That was a pretty weird dream.", scnr);
         makeText("You: Anyways, I got school today.", scnr);
         makeText("You forgot about the dream and continued on with life.", scnr);
         makeText("The End. Thanks for playing.\nBy: Jason L", scnr);
+        //Closes Scanner
         scnr.close();
     }
     
 
 
-
+    //Generates random number between 1 and 10
     public static int genRanNum() {
         Random rand = new Random();
         return rand.nextInt(10) + 1;
     }
+    //Shows Professor Oak
     public static void profOak() {
         System.out.println("   ,#####,");
         System.out.println(" _||_____||_");
@@ -388,10 +428,12 @@ public class Driver {
         System.out.println(" (|   <   |)");
         System.out.println("   \\_~~~_/ ");
     }
+    //Input parm text, scnr, outputs text and a scanner that consumes a empty line
     public static void makeText(String text, Scanner scnr) {
         System.out.println(text);
         scnr.nextLine();
     }
+    //Makes the user's Pokemon object
     public static Pokemon chooseStarterPokemon(Scanner scanner) {
         System.out.println("Choose your starter Pokemon (1/2/3/)");
         System.out.println("1. Charmander");
@@ -411,11 +453,13 @@ public class Driver {
                 return chooseStarterPokemon(scanner); // Recursively call the method until a valid choice is made
         }
     }
+    //Prints the main menu
     public static void printMenu() {
         System.out.println("i - Inventory");
         System.out.println("a - Action");
         System.out.println("q - Wakeup");
     }
+    //Prints the main based on String / Inventory allows access of Inventory object
     public static void printMenuv2(String choice, Inventory inv) {
         System.out.println("__________________________");
         if (choice.equalsIgnoreCase("i")) {
@@ -434,6 +478,7 @@ public class Driver {
             System.out.println("Invalid input buddy. ");
         }
     }
+    //Prints the thrid menu
     public static void printMenuv3() {
         System.out.println("i - Inventory");
         System.out.println("c - Continue journey (Jungle)");
