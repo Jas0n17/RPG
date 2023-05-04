@@ -1,5 +1,4 @@
-# RPG
-Pokemon RPG
+# Pokemon RPG
 
 "Yo, it's a cool game. 5 stars." - Famous Youtuber
 "Definitely check it out." - Elon Musk
